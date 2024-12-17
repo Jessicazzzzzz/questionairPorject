@@ -28,27 +28,21 @@ const rawQuestionList = [
   },
 ]
 const List: FC = () => {
-  const [questionlist, setquestionList] = useState(rawQuestionList)
+  const [questionlist] = useState(rawQuestionList)
 
   return (
     <>
       <div className={styles.header}>
         <div className={styles.left}>
-         <h3>我的问卷</h3> 
-          </div>
-        <div className={styles.right}>
-          搜索
+          <h3>我的问卷</h3>
         </div>
+        <div className={styles.right}>搜索</div>
       </div>
       <div className={styles.content}>
-        {
-          questionlist.map((item) => {  
-            const { _id} = item
-            return (
-             <QuestionCard key={_id} {...item}/>
-            )
-          })
-        }
+        {questionlist.map(item => {
+          const { _id } = item
+          return <QuestionCard key={_id} {...item} />
+        })}
       </div>
       <div className={styles.footer}>分页 </div>
     </>
