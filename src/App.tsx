@@ -1,11 +1,8 @@
-import List from './pages/List'
+import { RouterProvider } from 'react-router-dom'
+import routerConfig from './router'
 
 function App() {
-  return (
-    <>
-      <List />
-    </>
-  )
+  return <RouterProvider router={routerConfig} future={{ v7_startTransition: true }} />
 }
 
 export default App
