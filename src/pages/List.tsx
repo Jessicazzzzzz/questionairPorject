@@ -1,7 +1,8 @@
 import { FC, useState } from 'react'
-import styles from './List.module.scss'
+import styles from './Common.module.scss'
 import QuestionCard from '../components/QuestionCard'
 import { useTitle } from 'ahooks'
+import { Typography } from 'antd'
 // import { useSearchParams } from 'react-router-dom'
 const rawQuestionList = [
   {
@@ -33,22 +34,24 @@ const List: FC = () => {
   const [questionlist] = useState(rawQuestionList)
   // const [searchParams] = useSearchParams()
   // console.log("keyword",searchParams.get('keyword'));
+  const { Title } = Typography
   useTitle('小牧问卷调查-我的问卷')
   return (
     <>
       <div className={styles.header}>
         <div className={styles.left}>
-          <h3>我的问卷</h3>
+          <Title level={3}>我的问卷</Title>
         </div>
         <div className={styles.right}>搜索</div>
       </div>
       <div className={styles.content}>
-        {questionlist.map(item => {
-          const { _id } = item
-          return <QuestionCard key={_id} {...item} />
-        })}
+        {questionlist.length > 0 &&
+          questionlist.map(item => {
+            const { _id } = item
+            return <QuestionCard key={_id} {...item} />
+          })}
       </div>
-      <div className={styles.footer}>分页 </div>
+      <div className={styles.footer}>load more</div>
     </>
   )
 }

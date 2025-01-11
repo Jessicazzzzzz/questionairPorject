@@ -1,19 +1,22 @@
 import { FC } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import { Button, Typography } from 'antd'
+import { MANAGE_LIST_PATHNAME } from '../router'
+import styles from './Home.module.scss'
 const Home: FC = () => {
   const navigate = useNavigate()
-  // 登录按钮点击事件，跳转到登录页
-  const loginOnclick = () => {
-    navigate('/login')
-  }
+  const { Title, Paragraph } = Typography
 
   return (
-    <div>
-      <p>Home</p>
+    <div className={styles.container}>
       <div>
-        <button onClick={loginOnclick}>登录</button>
-        <Link to="/register">注册</Link>
+        <Title>问卷调查 | 在线投票</Title>
+        <Paragraph>已累计创建问卷100份,发布问卷90 份, 收到答卷980份</Paragraph>
+        <div className={styles.info}>
+          <Button type="primary" onClick={() => navigate(MANAGE_LIST_PATHNAME)}>
+            开始使用
+          </Button>
+        </div>
       </div>
     </div>
   )
