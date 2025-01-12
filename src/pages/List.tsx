@@ -3,6 +3,7 @@ import styles from './Common.module.scss'
 import QuestionCard from '../components/QuestionCard'
 import { useTitle } from 'ahooks'
 import { Typography } from 'antd'
+import ListSearch from '@/components/ListSearch'
 // import { useSearchParams } from 'react-router-dom'
 const rawQuestionList = [
   {
@@ -42,7 +43,9 @@ const List: FC = () => {
         <div className={styles.left}>
           <Title level={3}>我的问卷</Title>
         </div>
-        <div className={styles.right}>搜索</div>
+        <div className={styles.right}>
+          <ListSearch></ListSearch>
+        </div>
       </div>
       <div className={styles.content}>
         {questionlist.length > 0 &&

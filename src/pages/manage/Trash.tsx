@@ -1,8 +1,8 @@
 import { FC, useState } from 'react'
 import styles from '@/pages/Common.module.scss'
-import QuestionCard from '@/components/QuestionCard'
+import ListSearch from '@/components/ListSearch'
 import { useTitle } from 'ahooks'
-import { Empty, Table, Tag, Typography, Button, Space, Modal, message } from 'antd'
+import { Empty, Table, Tag, Typography, Button, Space, Modal, message, List } from 'antd'
 const rawQuestionList = [
   {
     _id: '1',
@@ -110,7 +110,10 @@ const ManageTrash: FC = () => {
         <div className={styles.left}>
           <Title level={3}>回收站</Title>
         </div>
-        <div className={styles.right}>搜索:{selectedIds}</div>
+        <div className={styles.right}>
+          <ListSearch></ListSearch>
+          {selectedIds}
+        </div>
       </div>
       <div className={styles.content}>
         {questionList.length === 0 && <Empty description="暂无数据" />}
