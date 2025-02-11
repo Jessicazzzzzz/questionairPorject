@@ -1,32 +1,17 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import styles from '@/pages/Common.module.scss'
 import QuestionCard from '@/components/QuestionCard'
 import { useTitle } from 'ahooks'
-import { Empty, Typography } from 'antd'
+import { Empty, Spin, Typography } from 'antd'
 import ListSearch from '@/components/ListSearch'
+import useLoadQuestionListData from '@/hooks/useLoadQuestionListData'
+import { QuestionItem } from '../List'
 
-const rawQuestionList = [
-  {
-    _id: '1',
-    title: '问卷1',
-    isPublished: true,
-    isStar: true,
-    answerCount: 10,
-    createAt: '3月10 13:12',
-  },
-  {
-    _id: '2',
-    title: '问卷2',
-    isPublished: false,
-    isStar: true,
-    answerCount: 13,
-    createAt: '6月10 10:12',
-  },
-]
 const ManageStar: FC = () => {
   useTitle('小牧星标问卷')
   const { Title } = Typography
-  const [questionLists, setQuestionLists] = useState(rawQuestionList)
+  const { data = {}, loading } = useLoadQuestionListData({ isStar: true })
+  const questionLists = data?.data?.list || []
   return (
     <>
       <div className={styles.header}>
@@ -37,13 +22,20 @@ const ManageStar: FC = () => {
           <ListSearch></ListSearch>
         </div>
       </div>
-      <div className={styles.content}>
-        {questionLists.length === 0 && <Empty description="暂无数据" />}
-        {questionLists.length > 0 &&
-          questionLists.map(item => {
-            return <QuestionCard key={item._id} {...item} />
-          })}
-      </div>
+      {loading ? (
+        <div style={{ textAlign: 'center' }}>
+          <Spin />
+        </div>
+      ) : (
+        <div className={styles.content}>
+          {!loading && questionLists.length === 0 && <Empty description="暂无数据" />}
+          {questionLists.length > 0 &&
+            questionLists.map((item: QuestionItem) => {
+              return <QuestionCard key={item._id} {...item} />
+            })}
+        </div>
+      )}
+
       <div className={styles.footer}>分页</div>
     </>
   )

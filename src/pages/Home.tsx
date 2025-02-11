@@ -1,11 +1,32 @@
-import { FC } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { FC, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Typography } from 'antd'
 import { MANAGE_LIST_PATHNAME } from '../router'
 import styles from './Home.module.scss'
+
+import axios from 'axios'
 const Home: FC = () => {
   const navigate = useNavigate()
   const { Title, Paragraph } = Typography
+  // 不直接使用mockjs 在前端项目中
+  // useEffect(() => {
+  //   // fetch('/api/test')
+  //   //   .then(res => {
+  //   //     console.log(res.json())
+  //   //   })
+  //   //   .then(data => {
+  //   //     console.log('data res', data)
+  //   //   })
+  //   axios.get('/api/test').then(res => {
+  //     console.log(res.data)
+  //   })
+  // })
+  useEffect(() => {
+    // 会有跨域的问题
+    axios.get('/api/test').then(res => {
+      console.log(res.data)
+    })
+  }, [])
 
   return (
     <div className={styles.container}>

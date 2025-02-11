@@ -2,33 +2,10 @@ import { FC, useState } from 'react'
 import styles from '@/pages/Common.module.scss'
 import ListSearch from '@/components/ListSearch'
 import { useTitle } from 'ahooks'
-import { Empty, Table, Tag, Typography, Button, Space, Modal, message, List } from 'antd'
-const rawQuestionList = [
-  {
-    _id: '1',
-    title: '问卷1',
-    isPublished: true,
-    isStar: true,
-    answerCount: 10,
-    createAt: '3月10 13:12',
-  },
-  {
-    _id: '2',
-    title: '问卷2',
-    isPublished: false,
-    isStar: true,
-    answerCount: 13,
-    createAt: '6月10 10:12',
-  },
-  {
-    _id: '3',
-    title: '问卷3',
-    isPublished: true,
-    isStar: false,
-    answerCount: 10,
-    createAt: '3月10 13:12',
-  },
-]
+import { Empty, Table, Tag, Typography, Button, Space, Modal, message, Spin } from 'antd'
+
+import useLoadQuestionListData from '@/hooks/useLoadQuestionListData'
+import { QuestionItem } from '../List'
 
 const tableColumns = [
   {
@@ -57,7 +34,10 @@ const tableColumns = [
     key: 'createAt',
   },
 ]
+
 const ManageTrash: FC = () => {
+  const { data = {}, loading } = useLoadQuestionListData({ isDeleted: true })
+  const questionLists = data?.data?.list || []
   useTitle('回收站')
   // 彻底删除提示
   const handleCompleteDelete = () => {
@@ -73,7 +53,7 @@ const ManageTrash: FC = () => {
     })
   }
   const { Title } = Typography
-  const [questionList, setQuestionList] = useState(rawQuestionList)
+
   // 记录选中的id
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const TableEle = (
@@ -90,9 +70,9 @@ const ManageTrash: FC = () => {
       </div>
       <Table
         columns={tableColumns}
-        dataSource={questionList}
+        dataSource={questionLists}
         pagination={false}
-        rowKey={q => q._id}
+        rowKey={(q: QuestionItem) => q._id}
         rowSelection={{
           type: 'checkbox',
           // 选中的每一行的数据
@@ -112,13 +92,20 @@ const ManageTrash: FC = () => {
         </div>
         <div className={styles.right}>
           <ListSearch></ListSearch>
-          {selectedIds}
+          {/* {selectedIds} */}
         </div>
       </div>
-      <div className={styles.content}>
-        {questionList.length === 0 && <Empty description="暂无数据" />}
-        {questionList.length > 0 && TableEle}
-      </div>
+      {loading ? (
+        <div style={{ textAlign: 'center' }}>
+          <Spin />
+        </div>
+      ) : (
+        <div className={styles.content}>
+          {!loading && questionLists.length === 0 && <Empty description="暂无数据" />}
+          {questionLists.length > 0 && TableEle}
+        </div>
+      )}
+
       <div className={styles.footer}></div>
     </>
   )
