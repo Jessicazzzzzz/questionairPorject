@@ -16,7 +16,7 @@ const ListSearch: FC = () => {
     // 跳转页面,带上搜索关键字
     navigate({
       pathname,
-      search: `${LIST_SEARCH_KEY}=${value}`,
+      search: `${LIST_SEARCH_KEY}=${value}`, // 没有page ,pageSize
     })
   }
   // 从url中获取搜索关键字,并且写回输入框

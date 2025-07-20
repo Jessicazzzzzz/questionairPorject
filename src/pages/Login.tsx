@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './Login.module.scss'
-import { Space, Typography, Form, Input, Button, Checkbox } from 'antd'
+import { Space, Typography, Form, Input, Button, Checkbox, message } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
-import { REGISTER_PATHNAME } from '@/router'
+import { MANAGE_LIST_PATHNAME, REGISTER_PATHNAME } from '@/router'
+import { useRequest } from 'ahooks'
+import useToken from '@/utils/user-token'
+import { loginUserService } from '@/services/user'
 const Login: FC = () => {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
   const USERNAME_KEY = 'username'
   const PASSWORD_KEY = 'password'
   const [form] = Form.useForm()
@@ -25,10 +28,29 @@ const Login: FC = () => {
   }
 
   const { Title } = Typography
-  const onFinish = (values: any) => {
-    console.log('Success:', values)
-    const { username, password, remember } = values || {}
 
+  const { run } = useRequest(
+    async values => {
+      const { username, password } = values
+      const data = await loginUserService({ username, password })
+      return data
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        // 获取token
+        const { token = '' } = result.data || {}
+        useToken.setToken(token) // 存储token
+        message.success('登录成功')
+        navigate(MANAGE_LIST_PATHNAME) // 导航到我的问卷
+      },
+    }
+  )
+  const onFinish = (values: any) => {
+    // console.log('Success:', values)
+
+    const { username, password, remember } = values || {}
+    run(values)
     if (remember) {
       rememberUser(username, password)
     } else {

@@ -1,15 +1,33 @@
 import { FC } from 'react'
-import { Space, Typography, Form, Input, Button } from 'antd'
+import { Space, Typography, Form, Input, Button, message } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './Register.module.scss'
 import { LOGIN_PATHNAME } from '../router'
+import { useRequest } from 'ahooks'
+import { registerUserService } from '@/services/user'
+
 const Register: FC = () => {
   const { Title } = Typography
-
+  const nav = useNavigate()
+  const { run } = useRequest(
+    async values => {
+      const { username, password, nickname } = values
+      await registerUserService({ username, password, nickname })
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        message.success('注册成功')
+        nav(LOGIN_PATHNAME)
+      },
+    }
+  )
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = (values: any) => {
     console.log('Success:', values)
+    if (!values) return
+    run(values)
   }
 
   return (

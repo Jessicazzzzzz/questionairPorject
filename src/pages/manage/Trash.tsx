@@ -1,11 +1,13 @@
 import { FC, useState } from 'react'
 import styles from '@/pages/Common.module.scss'
 import ListSearch from '@/components/ListSearch'
-import { useTitle } from 'ahooks'
+import { useRequest, useTitle } from 'ahooks'
 import { Empty, Table, Tag, Typography, Button, Space, Modal, message, Spin } from 'antd'
 
 import useLoadQuestionListData from '@/hooks/useLoadQuestionListData'
 import { QuestionItem } from '../List'
+import ListPage from '@/components/ListPage'
+import { deleteQuestionService, updateQuestionService } from '@/services/question'
 
 const tableColumns = [
   {
@@ -36,34 +38,67 @@ const tableColumns = [
 ]
 
 const ManageTrash: FC = () => {
-  const { data = {}, loading } = useLoadQuestionListData({ isDeleted: true })
+  const { data = {}, loading, refresh } = useLoadQuestionListData({ isDeleted: true })
   const questionLists = data?.data?.list || []
+  const total = data?.data?.total
   useTitle('回收站')
-  // 彻底删除提示
-  const handleCompleteDelete = () => {
+
+  const { Title } = Typography
+
+  // 记录选中的id
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  // 恢复
+  const { run: recover } = useRequest(
+    async () => {
+      for await (const id of selectedIds) {
+        await updateQuestionService(id, { isDelete: false })
+      }
+    },
+    {
+      manual: true,
+      debounceWait: 500, //防抖
+      onSuccess: () => {
+        message.success('恢复成功')
+        refresh() // 手动刷新列表
+        setSelectedIds([]) // 删除成功之后,重新刷新了页面,恢复和彻底删除的按钮应该是不能点击的,所以要重置
+      },
+    }
+  )
+  // 彻底删除
+  const tryDelete = () => {
     Modal.confirm({
       title: '彻底删除',
       content: '确定要彻底删除吗,删除以后不可恢复?',
       onOk() {
-        message.success('彻底删除成功')
+        deleteQuestionPermanently()
       },
       onCancel() {
         message.error('取消彻底删除')
       },
     })
   }
-  const { Title } = Typography
 
-  // 记录选中的id
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const { run: deleteQuestionPermanently } = useRequest(
+    async () => await deleteQuestionService(selectedIds),
+    {
+      manual: true,
+      debounceWait: 500, //防抖
+      onSuccess: () => {
+        message.success('彻底删除成功')
+        refresh() // 手动刷新列表
+        setSelectedIds([]) // 删除成功之后,重新刷新了页面,恢复和彻底删除的按钮应该是不能点击的,所以要重置
+      },
+    }
+  )
   const TableEle = (
     <>
       <div style={{ marginBottom: '10px' }}>
         <Space>
-          <Button type="primary" disabled={selectedIds.length === 0}>
+          <Button type="primary" disabled={selectedIds.length === 0} onClick={recover}>
             恢复
           </Button>
-          <Button danger disabled={selectedIds.length === 0} onClick={handleCompleteDelete}>
+          <Button danger disabled={selectedIds.length === 0} onClick={tryDelete}>
             彻底删除
           </Button>
         </Space>
@@ -76,6 +111,7 @@ const ManageTrash: FC = () => {
         rowSelection={{
           type: 'checkbox',
           // 选中的每一行的数据
+          // 当选择了一行数据的时候,就将这行的id存储到selectedIds中
           onChange: selectedRowKeys => {
             setSelectedIds(selectedRowKeys as string[])
           },
@@ -100,13 +136,16 @@ const ManageTrash: FC = () => {
           <Spin />
         </div>
       ) : (
-        <div className={styles.content}>
-          {!loading && questionLists.length === 0 && <Empty description="暂无数据" />}
-          {questionLists.length > 0 && TableEle}
-        </div>
+        <>
+          <div className={styles.content}>
+            {!loading && questionLists.length === 0 && <Empty description="暂无数据" />}
+            {questionLists.length > 0 && TableEle}
+          </div>
+          <div className={styles.footer}>
+            <ListPage total={total}></ListPage>
+          </div>
+        </>
       )}
-
-      <div className={styles.footer}></div>
     </>
   )
 }

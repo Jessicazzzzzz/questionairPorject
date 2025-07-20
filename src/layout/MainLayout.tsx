@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Flex, Layout } from 'antd'
 import styles from './MainLayout.module.scss'

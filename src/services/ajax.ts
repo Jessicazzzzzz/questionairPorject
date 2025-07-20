@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { message } from 'antd'
+import useToken from '@/utils/user-token'
 import axios from 'axios'
 
 const instance = axios.create({
@@ -7,10 +8,14 @@ const instance = axios.create({
 })
 
 // 添加请求拦截器
-//
+// 每次请求带上token
 instance.interceptors.request.use(
   function (config) {
     // 在发送请求之前做些什么
+    const token = useToken.getToken()
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}` // jwt 的固定的格式
+    }
     return config
   },
   function (error) {
